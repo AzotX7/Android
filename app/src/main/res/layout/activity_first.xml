@@ -1,0 +1,28 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите текст"
+        android:layout_marginBottom="16dp"
+        android:textSize="18sp"/>
+
+    <Button
+        android:id="@+id/buttonToSecond"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Перейти ко второму экрану"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:id="@+id/buttonToThird"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Перейти к третьему экрану" />
+</LinearLayout>
