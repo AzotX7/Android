@@ -12,27 +12,34 @@
         android:text="Question"
         style="@style/QuestionTextStyle" />
 
-    <CheckBox
-        android:id="@+id/checkbox1"
+    <RadioGroup
+        android:id="@+id/radioGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/RadioButtonStyle" />
+        android:orientation="vertical">
 
-    <CheckBox
-        android:id="@+id/checkbox2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/RadioButtonStyle" />
+        <RadioButton
+            android:id="@+id/radioButton1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/RadioButtonStyle" />
 
-    <CheckBox
-        android:id="@+id/checkbox3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/RadioButtonStyle" />
+        <RadioButton
+            android:id="@+id/radioButton2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/RadioButtonStyle" />
 
-    <CheckBox
-        android:id="@+id/checkbox4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/RadioButtonStyle" />
+        <RadioButton
+            android:id="@+id/radioButton3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/RadioButtonStyle" />
+
+        <RadioButton
+            android:id="@+id/radioButton4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/RadioButtonStyle" />
+    </RadioGroup>
 </LinearLayout>
