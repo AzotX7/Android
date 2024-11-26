@@ -11,10 +11,11 @@ import androidx.fragment.app.Fragment
 class QuestionFragment : Fragment() {
 
     private lateinit var questionText: TextView
-    private lateinit var checkbox1: CheckBox
-    private lateinit var checkbox2: CheckBox
-    private lateinit var checkbox3: CheckBox
-    private lateinit var checkbox4: CheckBox
+    private lateinit var radioGroup: RadioGroup
+    private lateinit var radioButton1: RadioButton
+    private lateinit var radioButton2: RadioButton
+    private lateinit var radioButton3: RadioButton
+    private lateinit var radioButton4: RadioButton
 
     companion object {
         private const val ARG_QUESTION = "question"
@@ -38,33 +39,39 @@ class QuestionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         questionText = view.findViewById(R.id.questionText)
-        checkbox1 = view.findViewById(R.id.checkbox1)
-        checkbox2 = view.findViewById(R.id.checkbox2)
-        checkbox3 = view.findViewById(R.id.checkbox3)
-        checkbox4 = view.findViewById(R.id.checkbox4)
+        radioGroup = view.findViewById(R.id.radioGroup)
+        radioButton1 = view.findViewById(R.id.radioButton1)
+        radioButton2 = view.findViewById(R.id.radioButton2)
+        radioButton3 = view.findViewById(R.id.radioButton3)
+        radioButton4 = view.findViewById(R.id.radioButton4)
 
         val question = arguments?.getParcelable<Question>(ARG_QUESTION)
         question?.let { setQuestion(it) }
+
+        setupListeners()
     }
 
     private fun setQuestion(question: Question) {
         questionText.text = question.text
-        checkbox1.text = question.options.getOrNull(0)
-        checkbox2.text = question.options.getOrNull(1)
-        checkbox3.text = question.options.getOrNull(2)
-        checkbox4.text = question.options.getOrNull(3)
+        radioButton1.text = question.options.getOrNull(0)
+        radioButton2.text = question.options.getOrNull(1)
+        radioButton3.text = question.options.getOrNull(2)
+        radioButton4.text = question.options.getOrNull(3)
+    }
 
-        checkbox1.setOnCheckedChangeListener { _, isChecked ->
-            checkbox1.setBackgroundColor(if (isChecked) resources.getColor(R.color.selected_answer_background) else resources.getColor(android.R.color.transparent))
+    private fun setupListeners() {
+        radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            resetRadioButtonBackgrounds()
+
+            val selectedButton = group.findViewById<RadioButton>(checkedId)
+            selectedButton?.setBackgroundColor(resources.getColor(R.color.selected_answer_background))
         }
-        checkbox2.setOnCheckedChangeListener { _, isChecked ->
-            checkbox2.setBackgroundColor(if (isChecked) resources.getColor(R.color.selected_answer_background) else resources.getColor(android.R.color.transparent))
-        }
-        checkbox3.setOnCheckedChangeListener { _, isChecked ->
-            checkbox3.setBackgroundColor(if (isChecked) resources.getColor(R.color.selected_answer_background) else resources.getColor(android.R.color.transparent))
-        }
-        checkbox4.setOnCheckedChangeListener { _, isChecked ->
-            checkbox4.setBackgroundColor(if (isChecked) resources.getColor(R.color.selected_answer_background) else resources.getColor(android.R.color.transparent))
-        }
+    }
+
+    private fun resetRadioButtonBackgrounds() {
+        radioButton1.setBackgroundColor(resources.getColor(android.R.color.transparent))
+        radioButton2.setBackgroundColor(resources.getColor(android.R.color.transparent))
+        radioButton3.setBackgroundColor(resources.getColor(android.R.color.transparent))
+        radioButton4.setBackgroundColor(resources.getColor(android.R.color.transparent))
     }
 }
