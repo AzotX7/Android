@@ -1,5 +1,6 @@
 package com.azot.weatherapp.presentation.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.azot.weatherapp.domain.model.WeatherInfo
@@ -19,6 +21,16 @@ fun WeatherListScreen(
 ) {
     val weatherList by viewModel.weatherList.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val toastMessage by viewModel.toastMessage.collectAsState()
+    val context = LocalContext.current
+
+
+    LaunchedEffect(toastMessage) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearToast()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadWeatherForCities(listOf("Moscow", "London", "New York", "Tokyo", "Paris"))
@@ -34,7 +46,10 @@ fun WeatherListScreen(
             .padding(16.dp)
     ) {
         items(weatherList) { weather ->
-            WeatherListItem(weatherInfo = weather, onClick = { onCityClick(weather.cityName) })
+            WeatherListItem(weatherInfo = weather, onClick = {
+                viewModel.loadCityWithToast(weather.cityName)
+                onCityClick(weather.cityName)
+            })
         }
     }
 }

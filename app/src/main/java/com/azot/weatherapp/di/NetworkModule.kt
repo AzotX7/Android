@@ -1,5 +1,6 @@
 package com.azot.weatherapp.di
 
+import android.content.Context
 import com.azot.weatherapp.data.remote.WeatherApiService
 import com.azot.weatherapp.data.repository.WeatherRepositoryImpl
 import com.azot.weatherapp.domain.repository.WeatherRepository
@@ -9,6 +10,7 @@ import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
