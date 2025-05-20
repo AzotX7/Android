@@ -2,29 +2,30 @@ package com.azot.weatherapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.azot.weatherapp.data.cache.InMemoryWeatherCache
 import com.azot.weatherapp.domain.model.WeatherInfo
-import com.azot.weatherapp.domain.repository.DataSource
 import com.azot.weatherapp.domain.repository.WeatherResult
 import com.azot.weatherapp.domain.usecase.GetFiveDayForecastUseCase
 import com.azot.weatherapp.domain.usecase.GetWeatherByCityUseCase
+import com.azot.weatherapp.presentation.weather.ForecastUiState
+import com.azot.weatherapp.presentation.weather.WeatherUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
-    private val getWeatherByCityUseCase: GetWeatherByCityUseCase,
-    private val getFiveDayForecastUseCase: GetFiveDayForecastUseCase
+    private val getFiveDayForecastUseCase: GetFiveDayForecastUseCase,
+    private val getWeatherByCityUseCase: GetWeatherByCityUseCase
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch {
-            InMemoryWeatherCache.clear()
-        }
-    }
+    private val _state = MutableStateFlow(WeatherUiState())
+    val state: StateFlow<WeatherUiState> = _state
+
+    private val _forecastState = MutableStateFlow(ForecastUiState())
+    val forecastState: StateFlow<ForecastUiState> = _forecastState
 
     private val _weatherList = MutableStateFlow<List<WeatherInfo>>(emptyList())
     val weatherList: StateFlow<List<WeatherInfo>> = _weatherList
@@ -35,50 +36,66 @@ class WeatherViewModel @Inject constructor(
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage
 
-    fun loadWeatherForCities(cities: List<String>) {
+    fun loadFiveDayForecast(city: String) {
         viewModelScope.launch {
-            val resultList = mutableListOf<WeatherInfo>()
-            for (city in cities) {
-                try {
-                    val result = getWeatherByCityUseCase(city)
-                    resultList.add(result.data)
-                } catch (e: Exception) {
-                    _errorMessage.value = "Ошибка загрузки данных для города: $city"
+            _forecastState.value = ForecastUiState(isLoading = true)
+            try {
+                val forecast = getFiveDayForecastUseCase(city)
+                _forecastState.value = ForecastUiState(forecastList = forecast)
+            } catch (e: Exception) {
+                _forecastState.value = ForecastUiState(error = "Не удалось загрузить прогноз для $city")
+            }
+        }
+    }
+
+    fun onCityInputChanged(newCity: String) {
+        _state.update { it.copy(cityInput = newCity) }
+    }
+
+    fun fetchWeather() {
+        val city = state.value.cityInput.trim()
+        if (city.isBlank()) return
+
+        _state.update { it.copy(isLoading = true, errorMessage = null) }
+
+        viewModelScope.launch {
+            try {
+                val result = getWeatherByCityUseCase(city)
+                _state.update {
+                    it.copy(weatherResult = result, isLoading = false, errorMessage = null)
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(isLoading = false, errorMessage = "Не удалось загрузить погоду: ${e.localizedMessage}")
                 }
             }
-            _weatherList.value = resultList
+        }
+    }
+
+    fun loadWeatherForCities(cities: List<String>) {
+        viewModelScope.launch {
+            val results = mutableListOf<WeatherInfo>()
+            var lastError: String? = null
+
+            cities.forEach { city ->
+                try {
+                    val weather = getWeatherByCityUseCase(city).data
+                    results.add(weather)
+                } catch (e: Exception) {
+                    lastError = "Ошибка загрузки данных для $city"
+                }
+            }
+
+            _weatherList.value = results
+            _errorMessage.value = lastError
         }
     }
 
     fun loadCityWithToast(city: String) {
-        viewModelScope.launch {
-            try {
-                val result = getWeatherByCityUseCase(city)
-                _toastMessage.value = when (result.source) {
-                    DataSource.CACHE -> "Данные из кэша"
-                    DataSource.API -> "Данные из API"
-                }
-
-                _weatherList.value = _weatherList.value.map {
-                    if (it.cityName == city) result.data else it
-                }
-            } catch (e: Exception) {
-                _toastMessage.value = "Ошибка загрузки данных"
-            }
-        }
+        _toastMessage.value = "Загружаем данные для $city"
     }
 
     fun clearToast() {
         _toastMessage.value = null
-    }
-
-
-
-    suspend fun getWeatherForCity(city: String): WeatherResult {
-        return getWeatherByCityUseCase(city)
-    }
-
-    suspend fun getFiveDayForecast(city: String): List<WeatherInfo> {
-        return getFiveDayForecastUseCase(city)
     }
 }

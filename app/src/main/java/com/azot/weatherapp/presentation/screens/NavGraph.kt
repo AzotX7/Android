@@ -23,5 +23,8 @@ fun AppNavGraph(
             val city = backStackEntry.arguments?.getString("city") ?: ""
             WeatherDetailScreen(city = city)
         }
+        composable("weather") {
+            WeatherScreen()
+        }
     }
 }
